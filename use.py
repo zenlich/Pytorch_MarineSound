@@ -1,14 +1,8 @@
 import torch
 import torch.nn as nn
-import torch.optim as optim
 import torchaudio
-import torchvision.models as models
-from torch.utils.data import Dataset, DataLoader
-import os
-import pandas as pd
-from sklearn.model_selection import train_test_split
-import swanlab
-from train import AudioClassifier
+from train2 import AudioClassifier
+
 
 def predict(audio_path, model_path, label_map):
     # 设备检测
@@ -31,8 +25,8 @@ def predict(audio_path, model_path, label_map):
     transform = torchaudio.transforms.MelSpectrogram(
         sample_rate=44100,
         n_fft=4096,
-        hop_length=640,
-        n_mels=128
+        hop_length=1024,
+        n_mels=32,
     )
     mel_spec = transform(waveform)
 
@@ -51,13 +45,25 @@ def predict(audio_path, model_path, label_map):
     return {
         "label": label_map[pred_idx],
         "confidence": probs[0][pred_idx].item(),
-        "all_probabilities": probs.tolist()[0]
+        "all_probabilities": probs.tolist()[0],
     }
 
 
 # 使用示例
 if __name__ == "__main__":
-    label_map = {0: 'Bearded Seal', 1: 'Beluga White Whale', 2: 'Harp Seal',3: 'Humpback Whale',4: 'Killer Whale',5: 'Long-Finned Pilot Whale',6: 'Northern Right Whale'
-                 ,7: 'Pantropical Spotted Dolphin',8: 'Ross Seal',9: 'Sperm Whale',10: 'Walrus',11: 'White-beaked Dolphin'}  # 与训练时的label_to_idx对应
-    result = predict('test.wav', 'audio_classifier.pth', label_map)
+    label_map = {
+        0: "Bearded Seal",
+        1: "Beluga White Whale",
+        2: "Harp Seal",
+        3: "Humpback Whale",
+        4: "Killer Whale",
+        5: "Long-Finned Pilot Whale",
+        6: "Northern Right Whale",
+        7: "Pantropical Spotted Dolphin",
+        8: "Ross Seal",
+        9: "Sperm Whale",
+        10: "Walrus",
+        11: "White-beaked Dolphin",
+    }  # 与训练时的label_to_idx对应
+    result = predict("test.wav", "audio_classifier.pth", label_map)
     print(f"预测结果: {result['label']} (置信度: {result['confidence']:.2%})")
